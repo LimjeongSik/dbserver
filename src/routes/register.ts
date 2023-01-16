@@ -4,6 +4,13 @@ import dotenv from "dotenv";
 import mysql from "mysql2";
 dotenv.config();
 
+interface UserType {
+    name: string;
+    phone: string;
+    userId: string;
+    userPw: string;
+}
+
 const router = express.Router();
 const connection = mysql.createConnection({
     host: process.env.DB_HOST,
@@ -14,7 +21,7 @@ const connection = mysql.createConnection({
 connection.connect();
 
 router.post("/", async (req: Request, res: Response, next: NextFunction) => {
-    const { name, phone, userId, userPw } = req.body;
+    const { name, phone, userId, userPw }: UserType = req.body;
     try {
         const hash = await bcrypt.hash(userPw, 12);
         connection.query(
