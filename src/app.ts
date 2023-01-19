@@ -1,7 +1,7 @@
 import express, { Request, Response, NextFunction } from "express";
 import dotenv from "dotenv";
 import cors from "cors";
-import register from "./routes/register";
+import users from "./routes/users";
 
 const app = express();
 const PORT = process.env.PORT;
@@ -15,7 +15,7 @@ app.get("/", (req: Request, res: Response, next: NextFunction) => {
     res.send("holla~");
 });
 
-app.use("/register", register);
+app.use("/users", users);
 
 app.listen(PORT, () => {
     console.log("server start");
