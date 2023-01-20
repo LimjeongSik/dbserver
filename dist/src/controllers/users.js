@@ -36,7 +36,7 @@ const users = {
             connection.query("insert into jabble.users (name, phone, userId, userPw) values(?,?,?,?)", [name, phone, userId, hash], (err) => {
                 if (err) {
                     res.status(409).send({
-                        msg: "error",
+                        msg: "중복된 아이디 입니다.",
                         content: {
                             errcode: err.code,
                             errstate: err.sqlState,
@@ -52,6 +52,37 @@ const users = {
         catch (error) {
             console.error(error);
             return next(error);
+        }
+    }),
+    login: (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+        const { userId, userPw } = req.body;
+        try {
+            connection.query("select * from jabble.users where userId=?", [userId], (err, rows) => {
+                if (!rows[0]) {
+                    res.status(400).send({
+                        msg: "아이디가 일치하지 않습니다",
+                    });
+                }
+                else {
+                    const pw = rows[0].userPw;
+                    bcrypt_1.default.compare(userPw, pw, (err, result) => {
+                        if (result) {
+                            res.status(200).send({
+                                msg: "로그인 성공",
+                            });
+                        }
+                        else {
+                            res.status(400).send({
+                                msg: "아이디 또는 비밀번호 불일치",
+                            });
+                        }
+                    });
+                }
+            });
+        }
+        catch (error) {
+            console.error(error);
+            next(error);
         }
     }),
 };
