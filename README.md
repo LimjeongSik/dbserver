@@ -5,3 +5,5 @@
 #### 2. 01.19 - /register -> /users 변경 후 controller 로직 구성 후 테스트
 
 #### 3. 01.20 - controller login 로직 구성 후 users 라우팅 구성 후 테스트
+
+#### 4. 01.22 - session cookie사용 로그인 및 로그아웃 구현 (진행중)...

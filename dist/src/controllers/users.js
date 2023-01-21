@@ -58,22 +58,28 @@ const users = {
         const { userId, userPw } = req.body;
         try {
             connection.query("select * from jabble.users where userId=?", [userId], (err, rows) => {
+                if (err)
+                    throw Error;
                 if (!rows[0]) {
                     res.status(400).send({
-                        msg: "아이디가 일치하지 않습니다",
+                        msg: "아이디가 존재하지 않습니다",
                     });
                 }
                 else {
                     const pw = rows[0].userPw;
                     bcrypt_1.default.compare(userPw, pw, (err, result) => {
                         if (result) {
-                            res.status(200).send({
-                                msg: "로그인 성공",
+                            res.cookie("user", userId, {
+                                expires: new Date(Date.now() + 900000),
+                                httpOnly: true,
+                                secure: false,
+                                signed: true,
                             });
+                            return res.send(req.signedCookies);
                         }
                         else {
-                            res.status(400).send({
-                                msg: "아이디 또는 비밀번호 불일치",
+                            return res.status(400).send({
+                                msg: "비밀번호가 일치하지않습니다.",
                             });
                         }
                     });
@@ -85,5 +91,19 @@ const users = {
             next(error);
         }
     }),
+    logout: (req, res, next) => {
+        res.clearCookie("user", {
+            httpOnly: true,
+            secure: false,
+            signed: true,
+        });
+        req.session.destroy((err) => {
+            if (err)
+                throw err;
+        });
+        console.log("쿠키 삭제");
+        console.log(req.signedCookies);
+        next();
+    },
 };
 exports.default = users;

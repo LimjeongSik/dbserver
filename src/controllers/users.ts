@@ -67,9 +67,14 @@ const users = {
                         const pw = rows[0].userPw;
                         bcrypt.compare(userPw, pw, (err, result) => {
                             if (result) {
-                                return res.status(200).send({
-                                    msg: "로그인 성공",
+                                res.cookie("user", userId, {
+                                    expires: new Date(Date.now() + 900000),
+                                    httpOnly: true,
+                                    secure: false,
+                                    signed: true,
                                 });
+
+                                return res.send(req.signedCookies);
                             } else {
                                 return res.status(400).send({
                                     msg: "비밀번호가 일치하지않습니다.",
@@ -86,7 +91,16 @@ const users = {
     },
 
     logout: (req: Request, res: Response, next: NextFunction) => {
-        res.clearCookie("user");
+        res.clearCookie("user", {
+            httpOnly: true,
+            secure: false,
+            signed: true,
+        });
+        req.session.destroy((err) => {
+            if (err) throw err;
+        });
+        console.log("쿠키 삭제");
+        console.log(req.signedCookies);
         next();
     },
 };
