@@ -58,20 +58,21 @@ const users = {
                 "select * from jabble.users where userId=?",
                 [userId],
                 (err: mysql.QueryError | null, rows: any) => {
+                    if (err) throw Error;
                     if (!rows[0]) {
                         res.status(400).send({
-                            msg: "아이디가 일치하지 않습니다",
+                            msg: "아이디가 존재하지 않습니다",
                         });
                     } else {
                         const pw = rows[0].userPw;
                         bcrypt.compare(userPw, pw, (err, result) => {
                             if (result) {
-                                res.status(200).send({
+                                return res.status(200).send({
                                     msg: "로그인 성공",
                                 });
                             } else {
-                                res.status(400).send({
-                                    msg: "아이디 또는 비밀번호 불일치",
+                                return res.status(400).send({
+                                    msg: "비밀번호가 일치하지않습니다.",
                                 });
                             }
                         });
@@ -82,6 +83,11 @@ const users = {
             console.error(error);
             next(error);
         }
+    },
+
+    logout: (req: Request, res: Response, next: NextFunction) => {
+        res.clearCookie("user");
+        next();
     },
 };
 
