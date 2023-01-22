@@ -3,6 +3,7 @@ import bcrypt from "bcrypt";
 import dotenv from "dotenv";
 import mysql from "mysql2";
 import { UserType } from "../types";
+
 dotenv.config();
 
 const connection = mysql.createConnection({
@@ -14,13 +15,22 @@ const connection = mysql.createConnection({
 connection.connect();
 
 const users = {
-    lookup: (req: Request, res: Response) => {
-        connection.query(
-            "select * from jabble.users",
-            (err: mysql.QueryError | null, rows: any) => {
-                res.send(rows);
+    lookup: async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            if (req.session.isLogged) {
+                return res.send({
+                    msg: "로그인중",
+                    isLogged: true,
+                });
+            } else {
+                return res.send({
+                    msg: "현재 로그인중이 아닙니다",
+                    isLogged: false,
+                });
             }
-        );
+        } catch (error) {
+            next(error);
+        }
     },
 
     register: async (req: Request, res: Response, next: NextFunction) => {
@@ -63,21 +73,22 @@ const users = {
                         res.status(400).send({
                             msg: "아이디가 존재하지 않습니다",
                         });
+                        return;
                     } else {
                         const pw = rows[0].userPw;
                         bcrypt.compare(userPw, pw, (err, result) => {
-                            if (result) {
-                                res.cookie("user", userId, {
-                                    expires: new Date(Date.now() + 900000),
-                                    httpOnly: true,
-                                    secure: false,
-                                    signed: true,
-                                });
-
-                                return res.send(req.signedCookies);
-                            } else {
-                                return res.status(400).send({
+                            if (!result) {
+                                res.status(400).send({
                                     msg: "비밀번호가 일치하지않습니다.",
+                                });
+                                return;
+                            } else {
+                                req.session.userId = userId!;
+                                req.session.isLogged = true;
+                                req.session.save(() => {
+                                    return res.status(200).send({
+                                        isLogged: true,
+                                    });
                                 });
                             }
                         });
@@ -90,18 +101,17 @@ const users = {
         }
     },
 
-    logout: (req: Request, res: Response, next: NextFunction) => {
-        res.clearCookie("user", {
-            httpOnly: true,
-            secure: false,
-            signed: true,
-        });
-        req.session.destroy((err) => {
-            if (err) throw err;
-        });
-        console.log("쿠키 삭제");
-        console.log(req.signedCookies);
-        next();
+    logout: (req: Request, res: Response) => {
+        if (req.session.userId) {
+            req.session.destroy((err) => {
+                if (err) throw err;
+                return res
+                    .status(200)
+                    .send({ msg: "로그아웃 성공", isLogged: false });
+            });
+        } else {
+            return res.status(400).send({ msg: "현재 로그인중이 아닙니다." });
+        }
     },
 };
 
