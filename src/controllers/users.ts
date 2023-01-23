@@ -68,7 +68,9 @@ const users = {
                 "select * from jabble.users where userId=?",
                 [userId],
                 (err: mysql.QueryError | null, rows: any) => {
-                    if (err) throw Error;
+                    if (err) {
+                        return res.status(400).send({ msg: "에러 발생!" });
+                    }
                     if (!rows[0]) {
                         res.status(400).send({
                             msg: "아이디가 존재하지 않습니다",
@@ -88,6 +90,7 @@ const users = {
                                 req.session.save(() => {
                                     return res.status(200).send({
                                         isLogged: true,
+                                        sessionId: req.sessionID,
                                     });
                                 });
                             }
@@ -103,6 +106,7 @@ const users = {
 
     logout: (req: Request, res: Response) => {
         if (req.session.userId) {
+            res.clearCookie("sessionId");
             req.session.destroy((err) => {
                 if (err) throw err;
                 return res

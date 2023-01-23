@@ -29,6 +29,7 @@ app.use(express.json());
 app.use(cookieParser(process.env.COOKIE_SECRET));
 app.use(
     session.default({
+        name: "sessionId",
         secret: process.env.COOKIE_SECRET!,
         resave: false,
         saveUninitialized: false,
@@ -36,6 +37,7 @@ app.use(
         cookie: {
             httpOnly: true,
             secure: false,
+            path: "/",
         },
     })
 );

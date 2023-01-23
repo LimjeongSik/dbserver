@@ -52,6 +52,7 @@ app.use((0, cors_1.default)({
 app.use(express_1.default.json());
 app.use((0, cookie_parser_1.default)(process.env.COOKIE_SECRET));
 app.use(session.default({
+    name: "sessionId",
     secret: process.env.COOKIE_SECRET,
     resave: false,
     saveUninitialized: false,
@@ -59,6 +60,7 @@ app.use(session.default({
     cookie: {
         httpOnly: true,
         secure: false,
+        path: "/",
     },
 }));
 app.use("/users", users_1.default);
