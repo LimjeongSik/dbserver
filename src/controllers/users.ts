@@ -15,9 +15,9 @@ const connection = mysql.createConnection({
 connection.connect();
 
 const users = {
-    lookup: async (req: Request, res: Response, next: NextFunction) => {
+    auth: async (req: Request, res: Response, next: NextFunction) => {
         try {
-            if (req.session.isLogged) {
+            if (req.sessionID === req.body.sessionId) {
                 return res.send({
                     msg: "로그인중",
                     isLogged: true,

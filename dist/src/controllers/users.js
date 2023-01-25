@@ -24,9 +24,9 @@ const connection = mysql2_1.default.createConnection({
 });
 connection.connect();
 const users = {
-    lookup: (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    auth: (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
         try {
-            if (req.session.isLogged) {
+            if (req.sessionID === req.body.sessionId) {
                 return res.send({
                     msg: "로그인중",
                     isLogged: true,
