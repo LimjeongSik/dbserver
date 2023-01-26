@@ -3,4 +3,5 @@ export interface UserType {
     phone: string;
     userId: string;
     userPw: string;
+    sessionId: string | undefined;
 }

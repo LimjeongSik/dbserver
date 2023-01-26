@@ -19,8 +19,8 @@ const users = {
         try {
             if (req.sessionID === req.body.sessionId) {
                 return res.send({
-                    msg: "로그인중",
                     isLogged: true,
+                    cookie: req.sessionID,
                 });
             } else {
                 return res.send({
@@ -62,7 +62,13 @@ const users = {
     },
 
     login: async (req: Request, res: Response, next: NextFunction) => {
-        const { userId, userPw }: UserType = req.body;
+        const { userId, userPw, sessionId }: UserType = req.body;
+        if (sessionId === req.sessionID) {
+            return res.status(200).send({
+                isLogged: true,
+                sessionId: req.sessionID,
+            });
+        }
         try {
             connection.query(
                 "select * from jabble.users where userId=?",
