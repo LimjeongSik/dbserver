@@ -16,11 +16,13 @@ connection.connect();
 
 const users = {
     auth: async (req: Request, res: Response, next: NextFunction) => {
+        const { sessionId } = req.body;
         try {
-            if (req.sessionID === req.body.sessionId) {
+            if (req.sessionID === sessionId) {
                 return res.send({
+                    msg: "현재 로그인중입니다.",
+                    userId: req.session.userId,
                     isLogged: true,
-                    cookie: req.sessionID,
                 });
             } else {
                 return res.send({

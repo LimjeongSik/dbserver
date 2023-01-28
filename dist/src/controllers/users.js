@@ -25,11 +25,13 @@ const connection = mysql2_1.default.createConnection({
 connection.connect();
 const users = {
     auth: (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+        const { sessionId } = req.body;
         try {
-            if (req.sessionID === req.body.sessionId) {
+            if (req.sessionID === sessionId) {
                 return res.send({
+                    msg: "현재 로그인중입니다.",
+                    userId: req.session.userId,
                     isLogged: true,
-                    cookie: req.sessionID,
                 });
             }
             else {
