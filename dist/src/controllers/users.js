@@ -30,8 +30,9 @@ const users = {
             if (req.sessionID === sessionId) {
                 return res.send({
                     msg: "현재 로그인중입니다.",
-                    userId: req.session.userId,
                     isLogged: true,
+                    sessionId: req.sessionID,
+                    username: req.session.username,
                 });
             }
             else {
@@ -49,21 +50,28 @@ const users = {
         const { name, phone, userId, userPw } = req.body;
         try {
             const hash = yield bcrypt_1.default.hash(userPw, 12);
-            connection.query("insert into jabble.users (name, phone, userId, userPw) values(?,?,?,?)", [name, phone, userId, hash], (err) => {
-                if (err) {
-                    res.status(409).send({
-                        msg: "중복된 아이디 입니다.",
-                        content: {
-                            errcode: err.code,
-                            errstate: err.sqlState,
-                            errnum: err.errno,
-                        },
-                    });
-                }
-                else {
-                    res.status(200).send({ msg: "success" });
-                }
-            });
+            if (name && phone && userId && userPw) {
+                connection.query("insert into jabble.users (name, phone, userId, userPw) values(?,?,?,?)", [name, phone, userId, hash], (err) => {
+                    if (err) {
+                        res.status(409).send({
+                            msg: "중복된 아이디 입니다.",
+                            content: {
+                                errcode: err.code,
+                                errstate: err.sqlState,
+                                errnum: err.errno,
+                            },
+                        });
+                    }
+                    else {
+                        res.status(200).send({ msg: "success" });
+                    }
+                });
+            }
+            else {
+                return res
+                    .status(400)
+                    .send({ msg: "내용을 모두 입력해주세요." });
+            }
         }
         catch (error) {
             console.error(error);
@@ -76,6 +84,7 @@ const users = {
             return res.status(200).send({
                 isLogged: true,
                 sessionId: req.sessionID,
+                username: req.session.username,
             });
         }
         try {
@@ -101,6 +110,7 @@ const users = {
                         else {
                             req.session.userId = userId;
                             req.session.isLogged = true;
+                            req.session.username = rows[0].name;
                             req.session.save(() => {
                                 return res.status(200).send({
                                     isLogged: true,

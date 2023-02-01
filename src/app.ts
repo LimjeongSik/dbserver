@@ -18,11 +18,14 @@ const options = {
 };
 const sessionStore = new MySQLStore(options);
 
+const origin = ["http://localhost:3000", "https://limjeongsik.github.io"];
+
 app.use(express.urlencoded({ extended: false }));
 app.use(
     cors({
-        origin: true,
+        origin: origin,
         credentials: true,
+        preflightContinue: false,
     })
 );
 app.use(express.json());

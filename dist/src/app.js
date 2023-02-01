@@ -44,10 +44,12 @@ const options = {
     database: process.env.DB_DATABASE,
 };
 const sessionStore = new MySQLStore(options);
+const origin = ["http://localhost:3000", "https://limjeongsik.github.io"];
 app.use(express_1.default.urlencoded({ extended: false }));
 app.use((0, cors_1.default)({
-    origin: true,
+    origin: origin,
     credentials: true,
+    preflightContinue: false,
 }));
 app.use(express_1.default.json());
 app.use((0, cookie_parser_1.default)(process.env.COOKIE_SECRET));

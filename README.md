@@ -15,3 +15,7 @@
 #### 7. 01.25 - react axios 사용 로그인 유지 테스트 (진행중)...
 
 #### 8. 01.26 - react axios 로그인용 api를 이용해서 session cookie 로그인 유지 테스트 (완료)
+
+#### 9. 01.31 - react axios login => auth api 로직 이동 후 테스트 완료.
+
+#### 10. 02.01 - react login error 처리 테스트 (진행중)...
