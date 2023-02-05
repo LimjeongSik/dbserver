@@ -44,12 +44,16 @@ const options = {
     database: process.env.DB_DATABASE,
 };
 const sessionStore = new MySQLStore(options);
-const origin = ["http://localhost:3000", "https://limjeongsik.github.io"];
+const origin = ["https://limjeongsik.github.io", "http://localhost:3000"];
 app.use(express_1.default.urlencoded({ extended: false }));
+// app.use(function setCommonHeaders(req, res, next) {
+//     res.set("Access-Control-Allow-Private-Network", "true");
+//     next();
+// });
 app.use((0, cors_1.default)({
     origin: origin,
     credentials: true,
-    preflightContinue: false,
+    // preflightContinue: true,
 }));
 app.use(express_1.default.json());
 app.use((0, cookie_parser_1.default)(process.env.COOKIE_SECRET));
@@ -59,10 +63,12 @@ app.use(session.default({
     resave: false,
     saveUninitialized: false,
     store: sessionStore,
+    // proxy: true,
     cookie: {
         httpOnly: true,
         secure: false,
         path: "/",
+        // sameSite: "none",
     },
 }));
 app.use("/users", users_1.default);

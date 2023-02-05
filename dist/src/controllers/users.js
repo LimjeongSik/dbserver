@@ -37,7 +37,7 @@ const users = {
             }
             else {
                 return res.send({
-                    msg: "현재 로그인중이 아닙니다",
+                    error: "현재 로그인중이 아닙니다",
                     isLogged: false,
                 });
             }
@@ -54,7 +54,7 @@ const users = {
                 connection.query("insert into jabble.users (name, phone, userId, userPw) values(?,?,?,?)", [name, phone, userId, hash], (err) => {
                     if (err) {
                         res.status(409).send({
-                            msg: "중복된 아이디 입니다.",
+                            error: "중복된 아이디 입니다.",
                             content: {
                                 errcode: err.code,
                                 errstate: err.sqlState,
@@ -70,7 +70,7 @@ const users = {
             else {
                 return res
                     .status(400)
-                    .send({ msg: "내용을 모두 입력해주세요." });
+                    .send({ error: "내용을 모두 입력해주세요." });
             }
         }
         catch (error) {
@@ -90,22 +90,20 @@ const users = {
         try {
             connection.query("select * from jabble.users where userId=?", [userId], (err, rows) => {
                 if (err) {
-                    return res.status(400).send({ msg: "에러 발생!" });
+                    return res.status(400).send({ error: "에러 발생!" });
                 }
                 if (!rows[0]) {
-                    res.status(400).send({
-                        msg: "아이디가 존재하지 않습니다",
+                    return res.status(400).send({
+                        error: "아이디가 존재하지 않습니다",
                     });
-                    return;
                 }
                 else {
                     const pw = rows[0].userPw;
                     bcrypt_1.default.compare(userPw, pw, (err, result) => {
                         if (!result) {
-                            res.status(400).send({
-                                msg: "비밀번호가 일치하지않습니다.",
+                            return res.status(400).send({
+                                error: "비밀번호가 일치하지않습니다.",
                             });
-                            return;
                         }
                         else {
                             req.session.userId = userId;
@@ -115,6 +113,7 @@ const users = {
                                 return res.status(200).send({
                                     isLogged: true,
                                     sessionId: req.sessionID,
+                                    username: req.session.username,
                                 });
                             });
                         }
@@ -139,7 +138,7 @@ const users = {
             });
         }
         else {
-            return res.status(400).send({ msg: "현재 로그인중이 아닙니다." });
+            return res.status(400).send({ error: "현재 로그인중이 아닙니다." });
         }
     },
 };

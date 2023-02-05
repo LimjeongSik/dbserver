@@ -5,6 +5,7 @@ import users from "./routes/users";
 import * as session from "express-session";
 import mysqlSession from "express-mysql-session";
 import cookieParser from "cookie-parser";
+import { NextFunction, Request, Response, ErrorRequestHandler } from "express";
 
 const app = express();
 const PORT = process.env.PORT;
@@ -18,14 +19,19 @@ const options = {
 };
 const sessionStore = new MySQLStore(options);
 
-const origin = ["http://localhost:3000", "https://limjeongsik.github.io"];
+const origin = ["https://limjeongsik.github.io", "http://localhost:3000"];
 
 app.use(express.urlencoded({ extended: false }));
+// app.use(function setCommonHeaders(req, res, next) {
+//     res.set("Access-Control-Allow-Private-Network", "true");
+//     next();
+// });
+
 app.use(
     cors({
         origin: origin,
         credentials: true,
-        preflightContinue: false,
+        // preflightContinue: true,
     })
 );
 app.use(express.json());
@@ -37,10 +43,12 @@ app.use(
         resave: false,
         saveUninitialized: false,
         store: sessionStore,
+        // proxy: true,
         cookie: {
             httpOnly: true,
             secure: false,
             path: "/",
+            // sameSite: "none",
         },
     })
 );
