@@ -5,7 +5,6 @@ import users from "./routes/users";
 import * as session from "express-session";
 import mysqlSession from "express-mysql-session";
 import cookieParser from "cookie-parser";
-import { NextFunction, Request, Response, ErrorRequestHandler } from "express";
 
 const app = express();
 const PORT = process.env.PORT;
